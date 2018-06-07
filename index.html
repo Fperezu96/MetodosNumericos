@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- Desmos API -->
+    <script src="https://www.desmos.com/api/v1.0/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+    <!-- Mathjs -->
+    <script src="https://unpkg.com/mathjs@4.4.2/dist/math.min.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+    <!-- Expresiones con formato Mathjs y latex -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" type="text/javascript" ></script>
+  
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    
+    <link href="style.css" rel="stylesheet">
+    <title>Métodos Númericos</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="col-lg-4 col-lg-offset-4">
+            <h1 class="text-center">Métodos</h1>
+            <p class="text-center">::Descripción de la página::</p>
+            <div id="calcConstructorButtons">
+                <table>
+                    <tr><td style="text-align:right"><input type="text" id="input" placeholder="Función en términos de X y Y " class="form-control" />
+                    <tr><td style="text-align:left"><div id="pretty">$$$$</div></td></tr>
+                    <tr><td style="text-align:right"><div id="calculator" style="width: 600px; height: 400px;"></div></td></tr>
+                </table>
+
+            </div><td style="text-align:center">
+            <script>
+                // Definición de variables
+                  var expr = document.getElementById('input'),
+                      pretty = document.getElementById('pretty'), 
+                      parenthesis = 'keep',// Control de los parentésis 1. Keep para mostrar los de la expresión, 2. All para todos, 3.Auto
+                      implicit = 'hide';// Control de las operaciones de multiplicación 1. Show para mostrar, 2. Hide para ocultar. 
+                      pretty.innerHTML = '$$...$$';
+
+                // Habilitar la vista y funcionalidades de la API de desmos. 
+                  var elt = document.getElementById('calculator');
+                    calculator = Desmos.GraphingCalculator(elt, {
+                    keypad: true,
+                    graphpaper: true,
+                    expressions: true,
+                    settingsMenu: false,
+                    zoomButtons: true,
+                    autosize: true,
+                    expressionsTopbar: false
+                    });
+                  
+                   //Conversión del texto en el Input a formato LaTex
+                    expr.oninput = function () {
+                    var node = null;
+                    try {
+                      // parse the expression
+                      node = math.parse(expr.value);
+                                    }
+                    catch (err) {
+                    }
+                
+                    try {
+                      // export the expression to LaTeX
+                        var latex = node ? node.toTex({parenthesis: parenthesis, implicit: implicit}) : '';
+                      
+                
+                      // display and re-render the expression
+                      var elem = MathJax.Hub.getAllJax('pretty')[0];
+                      MathJax.Hub.Queue(['Text', elem, latex]);
+
+                     // display into Desmos graphpaper
+                    
+                     calculator.setExpression({id: 'line1', latex: latex});
+
+                        // Cambiar el valor del input
+                   elt.onclick = function(){
+                    var m = calculator.getState().expressions.list["0"].latex; 
+                    console.log(String(m)); 
+                    expr.value = String(m);   
+                  
+                   }
+
+                    }
+                    catch (err) {}
+                  };
+                </script>
+            <table class="table">
+                <thead>
+
+                </thead>
+                <tbody id="tbody">
+                    <tr>
+                        <th>
+                            <p class="text-center">H:</p>
+                            <input type="text" placeholder="0.1" id="H" class="form-control" />
+                        </th>
+                        <th>
+                            <p class="text-center">X min:</p>
+                            <input type="text" placehoder="1" id="Xmin" class="form-control" />
+                        </th>
+                        <th>
+                            <p class="text-center">X max:</p>
+                            <input type="text" placehoder="2" id="Xmax" class="form-control" />
+                        </th>
+                        <th>
+                            <p class="text-center">f(X):</p>
+                            <input type="text" placehoder="1" id="Y" class="form-control" />
+                        </th>
+                    </tr>
+
+                </tbody>
+            </table>
+
+
+            <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                <div class="btn-group" role="group">
+                    <button type="button" class="euler btn btn-default">Euler</button>
+                </div>
+                <div class="btn-group" role="group">
+                    <button type="button" class="mejorado btn btn-default">Euler mejorado</button>
+                </div>
+                <div class="btn-group" role="group">
+                    <button type="button" class="ralston btn btn-default">Ralston</button>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-lg-6 col-lg-offset-3">
+            <br>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Yn+1</th>
+                        <th>Yn</th>
+                        <th>X</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody" class="tbody">
+
+                </tbody>
+            </table>
+
+           <script src="main.js"></script>
+        </div>
+</body>
+
+</html>
